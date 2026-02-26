@@ -14,8 +14,8 @@ Aprender a diseñar, construir y monitorear Agentes de Inteligencia Artificial u
 
 **1. Clonar el repositorio:**
 ```bash
-git clone [https://github.com/JafedM/langchain-crashcourse.git](https://github.com/JafedM/langchain-crashcourse.git)
-cd NOMBRE_DEL_REPO
+git clone https://github.com/JafedM/langchain-crashcourse.git
+cd langchain-crashcourse
 ```
 
 **2. Crear y activar un entorno virtual:**
