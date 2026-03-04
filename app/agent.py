@@ -1,5 +1,5 @@
 from typing import Annotated
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage
 from langgraph.graph import StateGraph, START, END, MessagesState
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -27,7 +27,7 @@ tools = [
 
 # Inicializamos el modelo (usamos gpt-4o-mini por ser rápido y económico)
 # temperature=0 es crucial para que el agente sea determinista al usar herramientas
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
 
 # "Conectamos" las herramientas al modelo. Esto inyecta los esquemas de las 
 # funciones (docstrings y argumentos) en la API del LLM para que sepa que existen.

@@ -61,8 +61,8 @@ def chat_interactivo():
 
 if __name__ == "__main__":
     import os
-    if not os.getenv("OPENAI_API_KEY"):
-        print("⚠️  ADVERTENCIA: No se encontró OPENAI_API_KEY en las variables de entorno.")
+    if not os.getenv("GOOGLE_API_KEY"):
+        print("⚠️  ADVERTENCIA: No se encontró GOOGLE_API_KEY en las variables de entorno.")
         print("Por favor, configura tu archivo .env antes de continuar.")
     else:
         chat_interactivo()
