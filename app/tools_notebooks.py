@@ -15,7 +15,7 @@ def consultar_inventario(categoria: str) -> str:
     Args:
         categoria (str): La categoría del producto (ej. 'Electrónica', 'Oficina').
     """
-    db_path = "inventario.db"
+    db_path = "../inventario.db"
     
     # Validar si la base de datos existe; si no, avisar al agente
     if not os.path.exists(db_path):
@@ -79,7 +79,7 @@ def consultar_agenda_dia(fecha: str) -> str:
     Args:
         fecha (str): La fecha exacta a consultar estrictamente en formato 'YYYY-MM-DD'.
     """
-    archivo_agenda = "agenda.json"
+    archivo_agenda = "../agenda.json"
     
     if not os.path.exists(archivo_agenda):
         return "La agenda está vacía o el archivo no existe."
@@ -124,7 +124,7 @@ def buscar_cliente(nombre: str) -> str:
         nombre (str): El nombre o apellido del cliente a buscar (ej. 'Ana', 'Carlos').
     """
     # Como app/main.py se ejecuta desde la raíz, la ruta es directa
-    db_path = "inventario.db" 
+    db_path = "../inventario.db" 
     
     if not os.path.exists(db_path):
         return "Error: La base de datos de clientes no está disponible."
@@ -172,7 +172,7 @@ def agendar_reunion(titulo: str, fecha_hora: str, descripcion: str) -> str:
         fecha_hora (str): La fecha y hora en formato 'YYYY-MM-DD HH:MM'.
         descripcion (str): Breve descripción o propósito de la reunión.
     """
-    archivo_agenda = "agenda.json"
+    archivo_agenda = "../agenda.json"
     nuevo_evento = {
         "titulo": titulo,
         "fecha_hora": fecha_hora,
@@ -195,55 +195,3 @@ def agendar_reunion(titulo: str, fecha_hora: str, descripcion: str) -> str:
         json.dump(eventos, f, indent=4)
         
     return f"✅ Reunión '{titulo}' agendada exitosamente para el {fecha_hora}."
-
-@tool
-def consultar_tabla_bd(tabla: str) -> str:
-    """
-    Consulta los registros generales de una tabla en la base de datos local.
-    Útil cuando el usuario pide ver "todos los clientes", "todos los usuarios" o "todos los productos".
-    
-    Args:
-        tabla (str): El nombre de la tabla a consultar. DEBE ser exactamente 'clientes' o 'productos'.
-    """
-    db_path = "inventario.db" 
-    
-    # 1. BLINDAJE DE SEGURIDAD (Lista Blanca)
-    # Protege contra alucinaciones del LLM y ataques de inyección.
-    tablas_permitidas = ["clientes", "productos"]
-    tabla_limpia = tabla.lower().strip()
-    
-    # Mapeo semántico por si el LLM deduce "usuarios" en lugar de "clientes"
-    if tabla_limpia == "usuarios":
-        tabla_limpia = "clientes"
-        
-    if tabla_limpia not in tablas_permitidas:
-        return f"Error: La tabla '{tabla}' no existe en esta base de datos. Solo puedes consultar 'clientes' o 'productos'."
-        
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        
-        # 2. PROTECCIÓN DE CONTEXTO (El salvavidas de los tokens)
-        # NUNCA le devolvemos una tabla entera sin límite a un LLM.
-        query = f"SELECT * FROM {tabla_limpia} LIMIT 50"
-        cursor.execute(query)
-        
-        # Extraemos los nombres de las columnas automáticamente para darle contexto al LLM
-        columnas = [descripcion[0] for descripcion in cursor.description]
-        resultados = cursor.fetchall()
-        conn.close()
-        
-        if not resultados:
-            return f"La tabla '{tabla_limpia}' está vacía."
-            
-        # 3. FORMATEO SEMÁNTICO
-        respuesta = f"--- Mostrando registros de la tabla '{tabla_limpia}' (Límite 50) ---\n"
-        for fila in resultados:
-            # Unimos la columna con su valor: "id: 1, nombre: Ana..."
-            fila_str = ", ".join([f"{col}: {val}" for col, val in zip(columnas, fila)])
-            respuesta += f"- {fila_str}\n"
-            
-        return respuesta
-        
-    except sqlite3.Error as e:
-        return f"Error crítico de SQL: {str(e)}"
